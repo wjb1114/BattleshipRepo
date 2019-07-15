@@ -9,16 +9,17 @@ namespace Server
 
     class Program
     {
+        public static string clientMessageOne;
+        public static string clientMessageTwo;
 
         // Main Method 
         static void Main(string[] args)
         {
-            //ExecuteServer();
+            //
             Game game = new Game(20);
-            Console.WriteLine(game.playerOne.board.GetBoardState());
-            Console.WriteLine("\n\n_________________________________________________________________________________________________________\n\n");
-            Console.WriteLine(game.playerTwo.board.GetBoardState());
-            Console.ReadKey();
+            clientMessageOne = game.playerOne.board.GetBoardState() + "\n";
+            clientMessageTwo += game.playerTwo.board.GetBoardState() + "\n";
+            ExecuteServer();
         }
 
         public static void ExecuteServer()
@@ -59,36 +60,49 @@ namespace Server
                     // incoming connection Using  
                     // Accept() method the server  
                     // will accept connection of client 
-                    Socket clientSocket = listener.Accept();
+                    Socket clientSocketOne = listener.Accept();
+                    Console.WriteLine("First client connected.");
+
+                    Socket clientSocketTwo = listener.Accept();
+                    Console.WriteLine("Second client connected.");
 
                     // Data buffer 
-                    byte[] bytes = new byte[1024];
-                    string data = null;
+                    byte[] bytes = new byte[4096];
+                    string dataOne = null;
+                    string dataTwo = null;
 
                     while (true)
                     {
 
-                        int numByte = clientSocket.Receive(bytes);
+                        int numByteOne = clientSocketOne.Receive(bytes);
+                        int numByteTwo = clientSocketTwo.Receive(bytes);
 
-                        data += Encoding.ASCII.GetString(bytes, 0, numByte);
+                        dataOne += Encoding.ASCII.GetString(bytes, 0, numByteOne);
+                        dataTwo += Encoding.ASCII.GetString(bytes, 0, numByteTwo);
 
-                        if (data.IndexOf("<EOF>") > -1)
+                        if (dataOne.IndexOf("<EOF>") > -1 && dataTwo.IndexOf("<EOF>") > -1)
                             break;
                     }
 
-                    Console.WriteLine("Text received -> {0} ", data);
-                    byte[] message = Encoding.ASCII.GetBytes("Test Server");
+                    Console.WriteLine("Text received from client 1 -> {0} ", dataOne);
+                    Console.WriteLine("Text received from client 2 -> {0} ", dataTwo);
+
+                    byte[] messageOne = Encoding.ASCII.GetBytes(clientMessageOne);
+                    byte[] messageTwo = Encoding.ASCII.GetBytes(clientMessageTwo);
 
                     // Send a message to Client  
                     // using Send() method 
-                    clientSocket.Send(message);
+                    clientSocketOne.Send(messageOne);
+                    clientSocketTwo.Send(messageTwo);
 
                     // Close client Socket using the 
                     // Close() method. After closing, 
                     // we can use the closed Socket  
                     // for a new Client Connection 
-                    clientSocket.Shutdown(SocketShutdown.Both);
-                    clientSocket.Close();
+                    clientSocketOne.Shutdown(SocketShutdown.Both);
+                    clientSocketTwo.Shutdown(SocketShutdown.Both);
+                    clientSocketOne.Close();
+                    clientSocketTwo.Close();
                 }
             }
 

@@ -52,7 +52,7 @@ namespace Client
                     int byteSent = sender.Send(messageSent);
 
                     // Data buffer 
-                    byte[] messageReceived = new byte[1024];
+                    byte[] messageReceived = new byte[8192];
 
                     // We receive the messagge using  
                     // the method Receive(). This  
@@ -60,9 +60,8 @@ namespace Client
                     // received, that we'll use to  
                     // convert them to string 
                     int byteRecv = sender.Receive(messageReceived);
-                    Console.WriteLine("Message from Server -> {0}",
-                          Encoding.ASCII.GetString(messageReceived,
-                                                     0, byteRecv));
+                    Console.WriteLine("Message from Server -> \n{0}",
+                          Encoding.ASCII.GetString(messageReceived, 0, byteRecv));
 
                     // Close Socket using  
                     // the method Close() 
